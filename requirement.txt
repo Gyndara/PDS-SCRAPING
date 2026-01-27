@@ -2,3 +2,4 @@ streamlit
 pandas
 requests
 folium==0.14.0
+pydeck
