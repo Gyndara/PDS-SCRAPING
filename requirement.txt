@@ -4,3 +4,5 @@ requests
 folium
 pydeck
 numpy
+matplotlib
+streamlit-folium
