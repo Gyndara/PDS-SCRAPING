@@ -7,8 +7,8 @@ url = "https://api.rukita.co/v2/discovery/search"
 
 #login session
 cookies = {
-    "_rt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkX3RpbWVfbXMiOjE3NjkyMjMwNTAyNzUsImlkIjoiVkdWdVlXNTBUbTlrWlRvek9UY3lOVEU9IiwidG9rZW5faWQiOiIxZTFlMDEzOS1iOTA1LTRmMTctOGE2Zi0yM2JlNDE4NGRiMjQ0MTY4OGYyMS1hNGVkLTQ3MzAtOTliYy01MjAxNWFiOTZkZjYifQ.UNMYF-uydDp1-O5gd3Nf4wrG5g7fFDzwV4LbHxRZRV0",
-    "_t": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRpc2NvcmR0YWkzQGdtYWlsLmNvbSIsImV4cCI6MTc2OTIzMzI1OSwiaWQiOiJWR1Z1WVc1MFRtOWtaVG96T1RjeU5URT0iLCJzZWN1cml0eSI6IiIsInR5cGUiOiJURU5BTlQifQ.ekoZhB70uE7O_FPL967orWyUgp9TwyYzEkG7Xvh9qyc"
+    "_rt": "",
+    "_t": ""
 }
 
 #menghindari deteksi bot (penyamaran)
