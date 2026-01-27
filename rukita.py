@@ -7,8 +7,8 @@ url = "https://api.rukita.co/v2/discovery/search"
 
 #login session
 cookies = {
-    "_rt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkX3RpbWVfbXMiOjE3Njg4MjQ2Nzg4MzYsImlkIjoiVkdWdVlXNTBUbTlrWlRvek9UTTNNVE09IiwidG9rZW5faWQiOiJhMzRmZWEyNS02NmQ3LTQ0ZGUtOWYyMC04ZjAwYTZmMTM0NGM2ZTZlZGZlZC1iZjc1LTRhOTMtYmUxNy0wMjU1MTM2OTM1MDMifQ.OzM3QwFwiE7ooh2f4tcr43XXvy860SFMgXZ_itTRuPU",
-    "_t": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFoc29uZ2plbkBnbWFpbC5jb20iLCJleHAiOjE3Njg4ODg5NjAsImlkIjoiVkdWdVlXNTBUbTlrWlRvek9UTTNNVE09Iiwic2VjdXJpdHkiOiIiLCJ0eXBlIjoiVEVOQU5UIn0.4CINWFdK9JfooGkqqc6TFYjsp7QVJGlsDNO9T-16NUg; WZRK_S_R95-479-4Z7Z=%22%22"
+    "_rt": "",
+    "_t": ""
 }
 
 #deteksi bot
