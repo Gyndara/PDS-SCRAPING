@@ -1,7 +1,5 @@
 streamlit
 pandas
 requests
-folium==0.14.0
-branca
-Jinja2
+folium
 pydeck
