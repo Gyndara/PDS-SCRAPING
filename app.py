@@ -6,8 +6,8 @@ import numpy as np
 from streamlit_folium import st_folium
 import matplotlib.pyplot as plt
 
-df = pd.read_excel('scraping_kosan.xlsx')
-polygon = pd.read_excel('kordinat_polygon.xlsx')
+df = pd.read_excel('data/scraping_kosan.xlsx')
+polygon = pd.read_excel('data/kordinat_polygon.xlsx')
 
 #peta
 center_lat = -6.8907
