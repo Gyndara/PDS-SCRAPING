@@ -10,10 +10,10 @@ df = pd.read_excel('data/scraping_kosan.xlsx')
 polygon = pd.read_excel('data/kordinat_polygon.xlsx')
 
 #peta
-center_lat = -6.8907
-center_lon = 107.542
-m = folium.Map(location=[center_lat, center_lon], zoom_start=10)
+center_lat_bandung = -6.924022570852051 
+center_lon_bandung = 107.68061945673925
 
+m = folium.Map(location=[center_lat_bandung, center_lon_bandung], zoom_start=12)
 
 st.title('ANALISIS DAN REKOMENDASI HARGA KOSAN BERDASARKAN PERSEBARAN KOSAN RUKITA')
 st.write('Hasil analisis kelompok kami, akan memberikan informasi kepada ' \
@@ -64,6 +64,98 @@ for kota, group in polygon.groupby("Kota"):
         icon=folium.Icon(color="blue", icon="info-sign")
     ).add_to(m)
 
-# Tampilkan peta di Streamlit
-st.title("Peta Kosan")
+st.title("Bandung dan sekitarnya")
 st_folium(m, width=700, height=500)
+
+center_lat_jakarta = -6.266167987422056
+center_lon_jakarta = 106.78322043697327
+
+j = folium.Map(location=[center_lat_jakarta, center_lon_jakarta], zoom_start=10.5)
+
+for kota, group in polygon.groupby("Kota"):
+
+    coords = group[["Latitude", "Longitude"]].values.tolist()
+
+    if kota in gabungan_kota:
+        jumlah_kosan = sum(
+            jumlah_kosan_per_kota.get(k, 0)
+            for k in gabungan_kota[kota]
+        )
+    else:
+        jumlah_kosan = jumlah_kosan_per_kota.get(kota, 0)
+
+    if (jumlah_kosan <= 50):
+        polygon_color = "yellow"
+    elif (jumlah_kosan <= 80):
+        polygon_color = "orange"
+    elif (jumlah_kosan <= 150):
+        polygon_color = "red"
+    else:
+        polygon_color = "blue"
+
+    if len(coords) >= 3:
+        folium.Polygon(
+            locations=coords,
+            color=polygon_color,
+            fill=True,
+            fill_color=polygon_color,
+            fill_opacity=0.4
+        ).add_to(j)
+
+    folium.Marker(
+        location=[group["Latitude"].mean(), group["Longitude"].mean()],
+        tooltip=kota,
+        popup=f"{kota}<br>Jumlah kosan: {jumlah_kosan}",
+        icon=folium.Icon(color="blue", icon="info-sign")
+    ).add_to(j)
+
+
+st.title("Jakarta dan sekitarnya")
+st_folium(j, width=700, height=500)
+
+
+center_lat_bogor = -6.546766181363673
+center_lon_bogor = 106.82582503678688
+
+b = folium.Map(location=[center_lat_bogor, center_lon_bogor], zoom_start=12)
+
+for kota, group in polygon.groupby("Kota"):
+
+    coords = group[["Latitude", "Longitude"]].values.tolist()
+
+    if kota in gabungan_kota:
+        jumlah_kosan = sum(
+            jumlah_kosan_per_kota.get(k, 0)
+            for k in gabungan_kota[kota]
+        )
+    else:
+        jumlah_kosan = jumlah_kosan_per_kota.get(kota, 0)
+
+    if (jumlah_kosan <= 50):
+        polygon_color = "yellow"
+    elif (jumlah_kosan <= 80):
+        polygon_color = "orange"
+    elif (jumlah_kosan <= 150):
+        polygon_color = "red"
+    else:
+        polygon_color = "blue"
+
+    if len(coords) >= 3:
+        folium.Polygon(
+            locations=coords,
+            color=polygon_color,
+            fill=True,
+            fill_color=polygon_color,
+            fill_opacity=0.4
+        ).add_to(b)
+
+    folium.Marker(
+        location=[group["Latitude"].mean(), group["Longitude"].mean()],
+        tooltip=kota,
+        popup=f"{kota}<br>Jumlah kosan: {jumlah_kosan}",
+        icon=folium.Icon(color="blue", icon="info-sign")
+    ).add_to(b)
+
+
+st.title('Bogor')
+st_folium(b, width=700, height=500)
