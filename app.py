@@ -9,6 +9,11 @@ import matplotlib.pyplot as plt
 df = pd.read_excel('data/scraping_kosan.xlsx')
 polygon = pd.read_excel('data/kordinat_polygon.xlsx')
 
+avg_harga_per_kota = df.groupby("Kota")["Harga (Rp)"].mean().to_dict()
+avg_fasilitas_per_kota = df.groupby("Kota")["Fasilitas"].apply(
+    lambda x: ", ".join(set(", ".join(x.astype(str)).split(", ")))
+).to_dict()
+
 #peta
 center_lat_bandung = -6.924022570852051 
 center_lon_bandung = 107.68061945673925
@@ -58,10 +63,18 @@ for kota, group in polygon.groupby("Kota"):
             fill_opacity=0.4
         ).add_to(m)
 
+    avg_harga = avg_harga_per_kota.get(kota, 0)
+    avg_fasilitas = avg_fasilitas_per_kota.get(kota, "Tidak ada fasilitas")
+
+    informasi = f"""
+    <b>{kota}</b><br>
+    Jumlah kosan: {jumlah_kosan}<br>
+    Rata-rata harga: Rp {avg_harga:,.0f}
+    """
+
     folium.Marker(
         location=[group["Latitude"].mean(), group["Longitude"].mean()],
-        tooltip=kota,
-        popup=f"{kota}<br>Jumlah kosan: {jumlah_kosan}",
+        popup=informasi,
         icon=folium.Icon(color="blue", icon="info-sign")
     ).add_to(m)
 
@@ -103,10 +116,18 @@ for kota, group in polygon.groupby("Kota"):
             fill_opacity=0.4
         ).add_to(j)
 
+    avg_harga = avg_harga_per_kota.get(kota, 0)
+    avg_fasilitas = avg_fasilitas_per_kota.get(kota, "Tidak ada fasilitas")
+
+    informasi = f"""
+    <b>{kota}</b><br>
+    Jumlah kosan: {jumlah_kosan}<br>
+    Rata-rata harga: Rp {avg_harga:,.0f}
+    """
+
     folium.Marker(
         location=[group["Latitude"].mean(), group["Longitude"].mean()],
-        tooltip=kota,
-        popup=f"{kota}<br>Jumlah kosan: {jumlah_kosan}",
+        popup=informasi,
         icon=folium.Icon(color="blue", icon="info-sign")
     ).add_to(j)
 
@@ -150,10 +171,18 @@ for kota, group in polygon.groupby("Kota"):
             fill_opacity=0.4
         ).add_to(b)
 
+    avg_harga = avg_harga_per_kota.get(kota, 0)
+    avg_fasilitas = avg_fasilitas_per_kota.get(kota, "Tidak ada fasilitas")
+
+    informasi = f"""
+    <b>{kota}</b><br>
+    Jumlah kosan: {jumlah_kosan}<br>
+    Rata-rata harga: Rp {avg_harga:,.0f}
+    """
+
     folium.Marker(
         location=[group["Latitude"].mean(), group["Longitude"].mean()],
-        tooltip=kota,
-        popup=f"{kota}<br>Jumlah kosan: {jumlah_kosan}",
+        popup=informasi,
         icon=folium.Icon(color="blue", icon="info-sign")
     ).add_to(b)
 
@@ -196,10 +225,18 @@ for kota, group in polygon.groupby("Kota"):
             fill_opacity=0.4
         ).add_to(y)
 
+    avg_harga = avg_harga_per_kota.get(kota, 0)
+    avg_fasilitas = avg_fasilitas_per_kota.get(kota, "Tidak ada fasilitas")
+
+    informasi = f"""
+    <b>{kota}</b><br>
+    Jumlah kosan: {jumlah_kosan}<br>
+    Rata-rata harga: Rp {avg_harga:,.0f}
+    """
+
     folium.Marker(
         location=[group["Latitude"].mean(), group["Longitude"].mean()],
-        tooltip=kota,
-        popup=f"{kota}<br>Jumlah kosan: {jumlah_kosan}",
+        popup=informasi,
         icon=folium.Icon(color="blue", icon="info-sign")
     ).add_to(y)
 
@@ -243,10 +280,18 @@ for kota, group in polygon.groupby("Kota"):
             fill_opacity=0.4
         ).add_to(s)
 
+    avg_harga = avg_harga_per_kota.get(kota, 0)
+    avg_fasilitas = avg_fasilitas_per_kota.get(kota, "Tidak ada fasilitas")
+
+    informasi = f"""
+    <b>{kota}</b><br>
+    Jumlah kosan: {jumlah_kosan}<br>
+    Rata-rata harga: Rp {avg_harga:,.0f}
+    """
+
     folium.Marker(
         location=[group["Latitude"].mean(), group["Longitude"].mean()],
-        tooltip=kota,
-        popup=f"{kota}<br>Jumlah kosan: {jumlah_kosan}",
+        popup=informasi,
         icon=folium.Icon(color="blue", icon="info-sign")
     ).add_to(s)
 
