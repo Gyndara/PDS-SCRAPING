@@ -6,3 +6,4 @@ pydeck
 numpy
 matplotlib
 streamlit-folium
+openpyxl
