@@ -1,42 +1,100 @@
 import pandas as pd
 import folium
-import pydeck
 import streamlit as st
-import numpy as np
 from streamlit_folium import st_folium
 import matplotlib.pyplot as plt
 
 df = pd.read_excel('data/scraping_kosan.xlsx')
 polygon = pd.read_excel('data/kordinat_polygon.xlsx')
+grafik = pd.read_excel('data/Analisis_Kos_vs_UMK_2026_Final.xlsx')
 
 avg_harga_per_kota = df.groupby("Kota")["Harga (Rp)"].mean().to_dict()
-avg_fasilitas_per_kota = df.groupby("Kota")["Fasilitas"].apply(
-    lambda x: ", ".join(set(", ".join(x.astype(str)).split(", ")))
-).to_dict()
-
-#peta
-center_lat_bandung = -6.924022570852051 
-center_lon_bandung = 107.68061945673925
-
-m = folium.Map(location=[center_lat_bandung, center_lon_bandung], zoom_start=12)
-
-st.title('ANALISIS DAN REKOMENDASI HARGA KOSAN BERDASARKAN PERSEBARAN KOSAN RUKITA')
-st.write('Hasil analisis kelompok kami, akan memberikan informasi kepada ' \
-'wirausaha yang ingin membangun kos-kosan, area mana yang belum padat pembangunan kos-kosan, berapa harga yang tepat serta berapa fasilitas yang perlu diberikan di setiap areanya.')
-
 jumlah_kosan_per_kota = df["Kota"].value_counts()
 
+# Gabungan wilayah
 gabungan_kota = {
-    "Bandung": ["Bandung", "Kabupaten Bandung", 'Kabupaten Bandung Barat'],
+    "Bandung": ["Bandung", "Kabupaten Bandung", "Kabupaten Bandung Barat"],
     "Yogyakarta": ["Yogyakarta", "Kabupaten Bantul"],
     "Solo (Surakarta)": ["Solo (Surakarta)", "Kabupaten Karanganyar"]
 }
 
+gabungan_fasilitas = {
+    "Bandung": ["Bandung", "Kabupaten Bandung", "Kabupaten Bandung Barat", "Kabupaten Sumedang"],
+    "Yogyakarta": ["Yogyakarta", "Kabupaten Sleman"],
+    "Solo (Surakarta)": ["Solo (Surakarta)", "Kabupaten Karanganyar"],
+    "Jakarta" : ["Kabupaten Tangerang", "Tangerang", "Jakarta Barat", "Jakarta Utara", "Jakarta Pusat", "Jakarta Timur", 
+    "Bekasi","Jakarta Selatan", "Tangerang Selatan", "Depok" ],
+    "Bogor" : ["Kabupaten Bogor", "Bogor"]
+}
+
+# Koordinat awal map
+kota_map = {
+    '': {'lat': -0.19164045731720974, 'lon': 110.16835376392196, 'zoom': 5},
+    'Jakarta': {'lat': -6.2661, 'lon': 106.7832, 'zoom': 10.5},
+    'Bandung': {'lat': -6.9240, 'lon': 107.6806, 'zoom': 12},
+    'Bogor': {'lat': -6.5467, 'lon': 106.8258, 'zoom': 12},
+    'Yogyakarta': {'lat': -7.7384, 'lon': 110.3976, 'zoom': 12},
+    'Semarang': {'lat': -7.0017, 'lon': 110.3976, 'zoom': 12},
+}
+
+st.title('ANALISIS DAN REKOMENDASI HARGA KOSAN BERDASARKAN PERSEBARAN KOSAN RUKITA')
+st.write(
+    'Hasil analisis ini memberikan informasi area potensial pembangunan kos, '
+    'kepadatan kos, harga rata-rata, serta fasilitas yang tersedia.'
+)
+
+selected_city = st.selectbox(
+    "Pilih Kota",
+    list(kota_map.keys())
+)
+
+if selected_city in gabungan_fasilitas:
+    df_filtered = df[df["Kota"].isin(gabungan_fasilitas[selected_city])]
+else:
+    df_filtered = df[df["Kota"] == selected_city]
+
+lat = kota_map[selected_city]['lat']
+lon = kota_map[selected_city]['lon']
+zoom = kota_map[selected_city]['zoom']
+
+m = folium.Map(location=[lat, lon], zoom_start=zoom)
+
+legend_html = """
+<div style="
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    width: 200px;
+    height: 170px;
+    background-color: white;
+    border: 2px solid grey;
+    z-index: 9999;
+    font-size: 14px;
+    color : black;
+    padding: 10px;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+">
+<b>Legenda Kepadatan Kosan</b><br><br>
+<i style="background:blue; width:18px; height:18px; float:left; margin-right:8px;"></i>
+Sangat Rendah (&le; 50)<br>
+
+<i style="background:yellow; width:18px; height:18px; float:left; margin-right:8px;"></i>
+Rendah (51–80)<br>
+
+<i style="background:orange; width:18px; height:18px; float:left; margin-right:8px;"></i>
+Padat (81–150)<br>
+
+<i style="background:red; width:18px; height:18px; float:left; margin-right:8px;"></i>
+Sangat Padat (> 150)
+</div>
+"""
+m.get_root().html.add_child(folium.Element(legend_html))
+
 for kota, group in polygon.groupby("Kota"):
 
     coords = group[["Latitude", "Longitude"]].values.tolist()
 
-    #menghitung gabungan kota
+    # hitung kosan gabungan
     if kota in gabungan_kota:
         jumlah_kosan = sum(
             jumlah_kosan_per_kota.get(k, 0)
@@ -45,28 +103,28 @@ for kota, group in polygon.groupby("Kota"):
     else:
         jumlah_kosan = jumlah_kosan_per_kota.get(kota, 0)
 
-    if (jumlah_kosan <= 50):
-        polygon_color = "yellow"
-    elif (jumlah_kosan <= 80):
-        polygon_color = "orange"
-    elif (jumlah_kosan <= 150):
-        polygon_color = "red"
+    # warna polygon
+    if jumlah_kosan <= 50:
+        color = "blue"
+    elif jumlah_kosan <= 80:
+        color = "yellow"
+    elif jumlah_kosan <= 150:
+        color = "orange"
     else:
-        polygon_color = "blue"
+        color = "red"
 
     if len(coords) >= 3:
         folium.Polygon(
             locations=coords,
-            color=polygon_color,
+            color=color,
             fill=True,
-            fill_color=polygon_color,
+            fill_color=color,
             fill_opacity=0.4
         ).add_to(m)
 
     avg_harga = avg_harga_per_kota.get(kota, 0)
-    avg_fasilitas = avg_fasilitas_per_kota.get(kota, "Tidak ada fasilitas")
 
-    informasi = f"""
+    popup_info = f"""
     <b>{kota}</b><br>
     Jumlah kosan: {jumlah_kosan}<br>
     Rata-rata harga: Rp {avg_harga:,.0f}
@@ -74,227 +132,39 @@ for kota, group in polygon.groupby("Kota"):
 
     folium.Marker(
         location=[group["Latitude"].mean(), group["Longitude"].mean()],
-        popup=informasi,
+        popup=popup_info,
         icon=folium.Icon(color="blue", icon="info-sign")
     ).add_to(m)
 
-st.title("Bandung dan sekitarnya")
+st.subheader(f"Peta Persebaran Kosan – {selected_city}")
 st_folium(m, width=700, height=500)
 
-center_lat_jakarta = -6.266167987422056
-center_lon_jakarta = 106.78322043697327
 
-j = folium.Map(location=[center_lat_jakarta, center_lon_jakarta], zoom_start=10.5)
+df_tabel_fasilitas = (
+    df_filtered
+    .groupby("Kota")["Fasilitas"]
+    .apply(lambda x: ", ".join(
+        sorted(set(", ".join(x.astype(str)).split(", ")))
+    ))
+    .reset_index()
+)
 
-for kota, group in polygon.groupby("Kota"):
+st.subheader(f"Fasilitas yang Tersedia di Wilayah {selected_city}")
 
-    coords = group[["Latitude", "Longitude"]].values.tolist()
+st.dataframe(
+    df_tabel_fasilitas,
+    use_container_width=True,
+    hide_index=True
+)
 
-    if kota in gabungan_kota:
-        jumlah_kosan = sum(
-            jumlah_kosan_per_kota.get(k, 0)
-            for k in gabungan_kota[kota]
-        )
-    else:
-        jumlah_kosan = jumlah_kosan_per_kota.get(kota, 0)
+#grafik
+st.subheader('Grafik perbandingan persenan umr untuk biaya sewa tempat tinggal dengan rata-rata harga kos')
 
-    if (jumlah_kosan <= 50):
-        polygon_color = "yellow"
-    elif (jumlah_kosan <= 80):
-        polygon_color = "orange"
-    elif (jumlah_kosan <= 150):
-        polygon_color = "red"
-    else:
-        polygon_color = "blue"
+grafik['Persentase Gaji untuk Kos (%)'] = (grafik['Rata-rata Harga Kos (Rp)'] / grafik['UMK 2026 (Rp)']) * 100
 
-    if len(coords) >= 3:
-        folium.Polygon(
-            locations=coords,
-            color=polygon_color,
-            fill=True,
-            fill_color=polygon_color,
-            fill_opacity=0.4
-        ).add_to(j)
-
-    avg_harga = avg_harga_per_kota.get(kota, 0)
-    avg_fasilitas = avg_fasilitas_per_kota.get(kota, "Tidak ada fasilitas")
-
-    informasi = f"""
-    <b>{kota}</b><br>
-    Jumlah kosan: {jumlah_kosan}<br>
-    Rata-rata harga: Rp {avg_harga:,.0f}
-    """
-
-    folium.Marker(
-        location=[group["Latitude"].mean(), group["Longitude"].mean()],
-        popup=informasi,
-        icon=folium.Icon(color="blue", icon="info-sign")
-    ).add_to(j)
-
-
-st.title("Jakarta dan sekitarnya")
-st_folium(j, width=700, height=500)
-
-
-center_lat_bogor = -6.546766181363673
-center_lon_bogor = 106.82582503678688
-
-b = folium.Map(location=[center_lat_bogor, center_lon_bogor], zoom_start=12)
-
-for kota, group in polygon.groupby("Kota"):
-
-    coords = group[["Latitude", "Longitude"]].values.tolist()
-
-    if kota in gabungan_kota:
-        jumlah_kosan = sum(
-            jumlah_kosan_per_kota.get(k, 0)
-            for k in gabungan_kota[kota]
-        )
-    else:
-        jumlah_kosan = jumlah_kosan_per_kota.get(kota, 0)
-
-    if (jumlah_kosan <= 50):
-        polygon_color = "yellow"
-    elif (jumlah_kosan <= 80):
-        polygon_color = "orange"
-    elif (jumlah_kosan <= 150):
-        polygon_color = "red"
-    else:
-        polygon_color = "blue"
-
-    if len(coords) >= 3:
-        folium.Polygon(
-            locations=coords,
-            color=polygon_color,
-            fill=True,
-            fill_color=polygon_color,
-            fill_opacity=0.4
-        ).add_to(b)
-
-    avg_harga = avg_harga_per_kota.get(kota, 0)
-    avg_fasilitas = avg_fasilitas_per_kota.get(kota, "Tidak ada fasilitas")
-
-    informasi = f"""
-    <b>{kota}</b><br>
-    Jumlah kosan: {jumlah_kosan}<br>
-    Rata-rata harga: Rp {avg_harga:,.0f}
-    """
-
-    folium.Marker(
-        location=[group["Latitude"].mean(), group["Longitude"].mean()],
-        popup=informasi,
-        icon=folium.Icon(color="blue", icon="info-sign")
-    ).add_to(b)
-
-
-st.title('Bogor')
-st_folium(b, width=700, height=500)
-
-center_lat_yogya = -7.738462636007786 
-center_lon_yogya = 110.3976623661559
-
-y = folium.Map(location=[center_lat_yogya, center_lon_yogya], zoom_start=12)
-
-for kota, group in polygon.groupby("Kota"):
-
-    coords = group[["Latitude", "Longitude"]].values.tolist()
-
-    if kota in gabungan_kota:
-        jumlah_kosan = sum(
-            jumlah_kosan_per_kota.get(k, 0)
-            for k in gabungan_kota[kota]
-        )
-    else:
-        jumlah_kosan = jumlah_kosan_per_kota.get(kota, 0)
-
-    if (jumlah_kosan <= 50):
-        polygon_color = "yellow"
-    elif (jumlah_kosan <= 80):
-        polygon_color = "orange"
-    elif (jumlah_kosan <= 150):
-        polygon_color = "red"
-    else:
-        polygon_color = "blue"
-
-    if len(coords) >= 3:
-        folium.Polygon(
-            locations=coords,
-            color=polygon_color,
-            fill=True,
-            fill_color=polygon_color,
-            fill_opacity=0.4
-        ).add_to(y)
-
-    avg_harga = avg_harga_per_kota.get(kota, 0)
-    avg_fasilitas = avg_fasilitas_per_kota.get(kota, "Tidak ada fasilitas")
-
-    informasi = f"""
-    <b>{kota}</b><br>
-    Jumlah kosan: {jumlah_kosan}<br>
-    Rata-rata harga: Rp {avg_harga:,.0f}
-    """
-
-    folium.Marker(
-        location=[group["Latitude"].mean(), group["Longitude"].mean()],
-        popup=informasi,
-        icon=folium.Icon(color="blue", icon="info-sign")
-    ).add_to(y)
-
-
-st.title('Yogyakarta dan Kabupaten Sleman')
-st_folium(y, width=700, height=500)
-
-
-center_lat_semarang = -7.001714208585145 
-center_lon_semarang = 110.3976623661559
-
-s = folium.Map(location=[center_lat_semarang, center_lon_semarang], zoom_start=12)
-
-for kota, group in polygon.groupby("Kota"):
-
-    coords = group[["Latitude", "Longitude"]].values.tolist()
-
-    if kota in gabungan_kota:
-        jumlah_kosan = sum(
-            jumlah_kosan_per_kota.get(k, 0)
-            for k in gabungan_kota[kota]
-        )
-    else:
-        jumlah_kosan = jumlah_kosan_per_kota.get(kota, 0)
-
-    if (jumlah_kosan <= 50):
-        polygon_color = "yellow"
-    elif (jumlah_kosan <= 80):
-        polygon_color = "orange"
-    elif (jumlah_kosan <= 150):
-        polygon_color = "red"
-    else:
-        polygon_color = "blue"
-
-    if len(coords) >= 3:
-        folium.Polygon(
-            locations=coords,
-            color=polygon_color,
-            fill=True,
-            fill_color=polygon_color,
-            fill_opacity=0.4
-        ).add_to(s)
-
-    avg_harga = avg_harga_per_kota.get(kota, 0)
-    avg_fasilitas = avg_fasilitas_per_kota.get(kota, "Tidak ada fasilitas")
-
-    informasi = f"""
-    <b>{kota}</b><br>
-    Jumlah kosan: {jumlah_kosan}<br>
-    Rata-rata harga: Rp {avg_harga:,.0f}
-    """
-
-    folium.Marker(
-        location=[group["Latitude"].mean(), group["Longitude"].mean()],
-        popup=informasi,
-        icon=folium.Icon(color="blue", icon="info-sign")
-    ).add_to(s)
-
-
-st.title('Semarang')
-st_folium(s, width=700, height=500)
+plt.figure()
+plt.plot(grafik['Kota'], grafik['Persentase Gaji untuk Kos (%)'])
+plt.axhline(30)
+plt.ylabel('Persentase UMR (%)')
+plt.title('Keterjangkauan Harga Kos terhadap UMR')
+st.pyplot(plt)
