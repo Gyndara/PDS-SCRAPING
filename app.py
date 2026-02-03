@@ -39,7 +39,7 @@ kota_map = {
 
 st.title('ANALISIS HARGA KOSAN BERDASARKAN PERSEBARAN KOSAN RUKITA')
 st.write(
-    'Hasil analisis ini memberikan informasi kepada masyarakat berapa uang yang perlu dikeluarkan untuk membayar sewa tempat tinggal disetiap daerahnya dan fasilitas apa saja yand didatkan, serta memperhitungkan gaji UMR yand dimiliki dan biaya tempat tinggal yang perlu dibayar'
+    'Hasil analisis ini memberikan informasi kepada masyarakat berapa uang yang perlu dikeluarkan untuk membayar sewa tempat tinggal disetiap daerahnya dan fasilitas apa saja yand didapatkan, serta memperhitungkan gaji UMR yand dimiliki dan biaya tempat tinggal yang perlu dibayar'
 )
 
 selected_city = st.selectbox(
