@@ -160,6 +160,7 @@ st.dataframe(
 )
 
 st.subheader('Grafik perbandingan UMR dengan rata-rata harga kosan')
+st.write('Berasal dari website pinhome yang membahas mengenai "Panduan Biaya Sewa Tempat Tinggal Idel Sesuai Pendapatkan" Biaya sewa yang ideal adalah 30-40% dari gaji yang kita miliki agar tetap aman secara finansial.')
 grafik_filtered = grafik_filtered.copy()
 
 grafik_filtered["Batas 30% UMR"] = grafik_filtered["UMK"] * 0.3
