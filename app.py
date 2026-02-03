@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 df = pd.read_excel('data/scraping_kosan.xlsx')
 polygon = pd.read_excel('data/kordinat_polygon.xlsx')
-grafik = pd.read_excel('data/Analisis_Kos_vs_UMK_2026_Final.xlsx')
+grafik = pd.read_excel('data/UMR.xlsx')
 
 avg_harga_per_kota = df.groupby("Kota")["Harga (Rp)"].mean().to_dict()
 jumlah_kosan_per_kota = df["Kota"].value_counts()
@@ -50,8 +50,10 @@ selected_city = st.selectbox(
 
 if selected_city in gabungan_fasilitas:
     df_filtered = df[df["Kota"].isin(gabungan_fasilitas[selected_city])]
+    grafik_filtered = grafik[grafik["Kota"].isin(gabungan_fasilitas[selected_city])]
 else:
     df_filtered = df[df["Kota"] == selected_city]
+    grafik_filtered = grafik[grafik["Kota"] == selected_city]
 
 lat = kota_map[selected_city]['lat']
 lon = kota_map[selected_city]['lon']
@@ -149,22 +151,60 @@ df_tabel_fasilitas = (
     .reset_index()
 )
 
-st.subheader(f"Fasilitas yang Tersedia di Wilayah {selected_city}")
+st.subheader(f"Rata-rata fasilitas yang disediakan di area {selected_city}")
 
 st.dataframe(
     df_tabel_fasilitas,
-    use_container_width=True,
-    hide_index=True
+    width="stretch",
+    hide_index=True,
 )
 
+st.subheader('Grafik perbandingan UMR dengan rata-rata harga kosan')
+grafik_filtered = grafik_filtered.copy()
+
+grafik_filtered["Batas 30% UMR"] = grafik_filtered["UMK"] * 0.3
+grafik_filtered["Batas 40% UMR"] = grafik_filtered["UMK"] * 0.4
 #grafik
-st.subheader('Grafik perbandingan persenan umr untuk biaya sewa tempat tinggal dengan rata-rata harga kos')
+plt.figure(figsize=(10, 5))
 
-grafik['Persentase Gaji untuk Kos (%)'] = (grafik['Rata-rata Harga Kos (Rp)'] / grafik['UMK 2026 (Rp)']) * 100
+plt.plot(
+    grafik_filtered["Kota"],
+    grafik_filtered["UMK"],
+    marker="o",
+    label="UMR",
+    color='green'
+)
 
-plt.figure()
-plt.plot(grafik['Kota'], grafik['Persentase Gaji untuk Kos (%)'])
-plt.axhline(30)
-plt.ylabel('Persentase UMR (%)')
-plt.title('Keterjangkauan Harga Kos terhadap UMR')
+plt.plot(
+    grafik_filtered["Kota"],
+    grafik_filtered["ratarata"],
+    marker="o",
+    label="Rata-rata Harga Kos",
+    color='orange'
+)
+
+plt.plot(
+    grafik_filtered["Kota"],
+    grafik_filtered["Batas 30% UMR"],
+    marker="o",
+    linestyle="--",
+    color="blue",
+    label="Minimum sewa 30% UMR"
+)
+
+plt.plot(
+    grafik_filtered["Kota"],
+    grafik_filtered["Batas 40% UMR"],
+    marker="o",
+    linestyle="--",
+    color="red",
+    label="Maksimum sewa 40% UMR"
+)
+
+plt.ylabel("Rupiah (Rp)")
+plt.xlabel("Kota")
+plt.legend()
+plt.grid(True)
+plt.xticks(rotation=45)
+
 st.pyplot(plt)
