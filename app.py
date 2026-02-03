@@ -37,10 +37,9 @@ kota_map = {
     'Semarang': {'lat': -7.0017, 'lon': 110.3976, 'zoom': 12},
 }
 
-st.title('ANALISIS DAN REKOMENDASI HARGA KOSAN BERDASARKAN PERSEBARAN KOSAN RUKITA')
+st.title('ANALISIS HARGA KOSAN BERDASARKAN PERSEBARAN KOSAN RUKITA')
 st.write(
-    'Hasil analisis ini memberikan informasi area potensial pembangunan kos, '
-    'kepadatan kos, harga rata-rata, serta fasilitas yang tersedia.'
+    'Hasil analisis ini memberikan informasi kepada masyarakat berapa uang yang perlu dikeluarkan untuk membayar sewa tempat tinggal disetiap daerahnya dan fasilitas apa saja yand didatkan, serta memperhitungkan gaji UMR yand dimiliki dan biaya tempat tinggal yang perlu dibayar'
 )
 
 selected_city = st.selectbox(
