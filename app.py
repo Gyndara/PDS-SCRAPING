@@ -61,7 +61,7 @@ st.write(
 st.subheader("Pilih Kota")
 
 selected_city = st.selectbox(
-    "kota",
+    "",
     list(kota_map.keys())
 )
 
