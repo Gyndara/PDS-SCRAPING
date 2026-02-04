@@ -53,7 +53,7 @@ kota_map = {
     'Denpasar': {'lat': -8.69020045581404, 'lon':115.20786276395158, 'zoom': 12}
 }
 
-st.title('ANALISIS HARGA KOSAN BERDASARKAN PERSEBARAN KOSAN RUKITA')
+st.title('ANALISIS KECOCOKAN HUNIAN BERDASARKAN UMR')
 st.write(
     'Hasil analisis ini memberikan informasi kepada masyarakat berapa uang yang perlu dikeluarkan untuk membayar sewa tempat tinggal disetiap daerahnya dan fasilitas apa saja yand didapatkan, serta memperhitungkan gaji UMR yand dimiliki dan biaya tempat tinggal yang perlu dibayar'
 )
