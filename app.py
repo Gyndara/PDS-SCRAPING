@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 df = pd.read_excel('data/scraping_kosan.xlsx')
 polygon = pd.read_excel('data/kordinat_polygon.xlsx')
 grafik = pd.read_excel('data/UMR.xlsx')
+grafikMakan = pd.read_excel('data/BiayaMakan.xlsx')
 
 avg_harga_per_kota = df.groupby("Kota")["Harga (Rp)"].mean().to_dict()
 jumlah_kosan_per_kota = df["Kota"].value_counts()
@@ -22,8 +23,7 @@ gabungan_fasilitas = {
     "Bandung": ["Bandung", "Kabupaten Bandung", "Kabupaten Bandung Barat", "Kabupaten Sumedang"],
     "Yogyakarta": ["Yogyakarta", "Kabupaten Sleman"],
     "Solo (Surakarta)": ["Solo (Surakarta)", "Kabupaten Karanganyar"],
-    "Jakarta" : ["Kabupaten Tangerang", "Tangerang", "Jakarta Barat", "Jakarta Utara", "Jakarta Pusat", "Jakarta Timur", 
-    "Bekasi","Jakarta Selatan", "Tangerang Selatan", "Depok" ],
+    "Jakarta" : ["Kabupaten Tangerang", "Tangerang", "Jakarta Barat", "Jakarta Utara", "Jakarta Pusat", "Jakarta Timur", "Bekasi", "Jakarta Selatan", "Tangerang Selatan", "Depok", 'Kabupaten Bekasi' ],
     "Bogor" : ["Kabupaten Bogor", "Bogor"],
     "Solo (Surakarta)": ['Solo (Surakarta)', "Kabupaten Sukoharjo"],
     "Denpasar": ['Kabupaten Badung', 'Denpasar'],
@@ -52,17 +52,22 @@ st.write(
     'Hasil analisis ini memberikan informasi kepada masyarakat berapa uang yang perlu dikeluarkan untuk membayar sewa tempat tinggal disetiap daerahnya dan fasilitas apa saja yand didapatkan, serta memperhitungkan gaji UMR yand dimiliki dan biaya tempat tinggal yang perlu dibayar'
 )
 
+st.subheader("Pilih Kota")
+
 selected_city = st.selectbox(
-    "Pilih Kota",
+    "kota",
     list(kota_map.keys())
 )
+
 
 if selected_city in gabungan_fasilitas:
     df_filtered = df[df["Kota"].isin(gabungan_fasilitas[selected_city])]
     grafik_filtered = grafik[grafik["Kota"].isin(gabungan_fasilitas[selected_city])]
+    grafikMakan_filtered = grafikMakan[grafikMakan["Kota"].isin(gabungan_fasilitas[selected_city])]
 else:
     df_filtered = df[df["Kota"] == selected_city]
     grafik_filtered = grafik[grafik["Kota"] == selected_city]
+    grafikMakan_filtered = grafikMakan[grafikMakan["Kota"] == selected_city]
 
 lat = kota_map[selected_city]['lat']
 lon = kota_map[selected_city]['lon']
@@ -147,6 +152,7 @@ for kota, group in polygon.groupby("Kota"):
         icon=folium.Icon(color="blue", icon="info-sign")
     ).add_to(m)
 
+
 st.subheader(f"Peta Persebaran Kosan – {selected_city}")
 st_folium(m, width=700, height=500)
 
@@ -218,3 +224,37 @@ plt.grid(True)
 plt.xticks(rotation=45)
 
 st.pyplot(plt)
+
+st.subheader('Grafik pengeluaran biaya makan perbulan')
+st.write('Data pengeluaran per-bulan untuk makan per-daerahnya kami dapatkan dari BPS (Badan Pusat Statistik)')
+plt.figure(figsize=(10, 5))
+
+plt.plot(
+    grafik_filtered["Kota"],
+    grafik_filtered["UMK"],
+    marker="o",
+    label="UMR",
+    color='green'
+)
+
+plt.plot(
+    grafikMakan_filtered["Kota"],
+    grafikMakan_filtered["Biaya Makan"],
+    marker="o",
+    label="Biaya Makan Perbulan",
+    color='blue'
+)
+
+plt.legend()
+plt.ylabel("Rupiah (Rp)")
+plt.xlabel("Kota")
+
+plt.ylim(bottom=500) 
+
+plt.grid(True)
+plt.xticks(rotation=45)
+
+st.pyplot(plt, use_container_width=True)
+
+
+
