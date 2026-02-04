@@ -24,7 +24,11 @@ gabungan_fasilitas = {
     "Solo (Surakarta)": ["Solo (Surakarta)", "Kabupaten Karanganyar"],
     "Jakarta" : ["Kabupaten Tangerang", "Tangerang", "Jakarta Barat", "Jakarta Utara", "Jakarta Pusat", "Jakarta Timur", 
     "Bekasi","Jakarta Selatan", "Tangerang Selatan", "Depok" ],
-    "Bogor" : ["Kabupaten Bogor", "Bogor"]
+    "Bogor" : ["Kabupaten Bogor", "Bogor"],
+    "Solo (Surakarta)": ['Solo (Surakarta)', "Kabupaten Sukoharjo"],
+    "Denpasar": ['Kabupaten Badung', 'Denpasar'],
+    "Malang": ["Kabupaten Malang", "Malang"],
+    "Surabaya": ["Surabaya", "Kabupaten Sidoarjo"]
 }
 
 # Koordinat awal map
@@ -35,6 +39,12 @@ kota_map = {
     'Bogor': {'lat': -6.5467, 'lon': 106.8258, 'zoom': 12},
     'Yogyakarta': {'lat': -7.7384, 'lon': 110.3976, 'zoom': 12},
     'Semarang': {'lat': -7.0017, 'lon': 110.3976, 'zoom': 12},
+    'Medan': {'lat': 3.5702987393965637,'lon': 98.64896053476728,'zoom': 12},
+    'Serang': {'lat': -6.1259, 'lon': 106.1403,'zoom': 12},
+    'Malang': {'lat': -7.9664, 'lon': 112.6315, 'zoom': 12},
+    'Surabaya': {'lat': -7.30859275938801, 'lon': 112.73223806582098, 'zoom': 10.5},
+    'Solo (Surakarta)': {'lat': -7.568031155668305, 'lon': 110.81161555233238, 'zoom': 12},
+    'Denpasar': {'lat': -8.69020045581404, 'lon':115.20786276395158, 'zoom': 12}
 }
 
 st.title('ANALISIS HARGA KOSAN BERDASARKAN PERSEBARAN KOSAN RUKITA')
