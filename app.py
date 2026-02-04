@@ -4,10 +4,16 @@ import streamlit as st
 from streamlit_folium import st_folium
 import matplotlib.pyplot as plt
 
+st.set_page_config(
+    page_title="Analisis Harga Kosan Rukita",
+    layout="wide"
+)
+
 df = pd.read_excel('data/scraping_kosan.xlsx')
 polygon = pd.read_excel('data/kordinat_polygon.xlsx')
 grafik = pd.read_excel('data/UMR.xlsx')
 grafikMakan = pd.read_excel('data/BiayaMakan.xlsx')
+rumah = pd.read_excel('data/HargaRumah.xlsx')
 
 avg_harga_per_kota = df.groupby("Kota")["Harga (Rp)"].mean().to_dict()
 jumlah_kosan_per_kota = df["Kota"].value_counts()
@@ -59,15 +65,18 @@ selected_city = st.selectbox(
     list(kota_map.keys())
 )
 
-
 if selected_city in gabungan_fasilitas:
     df_filtered = df[df["Kota"].isin(gabungan_fasilitas[selected_city])]
     grafik_filtered = grafik[grafik["Kota"].isin(gabungan_fasilitas[selected_city])]
     grafikMakan_filtered = grafikMakan[grafikMakan["Kota"].isin(gabungan_fasilitas[selected_city])]
+    kota_aktif = gabungan_fasilitas[selected_city]
 else:
     df_filtered = df[df["Kota"] == selected_city]
     grafik_filtered = grafik[grafik["Kota"] == selected_city]
     grafikMakan_filtered = grafikMakan[grafikMakan["Kota"] == selected_city]
+    kota_aktif = [selected_city]
+
+rumah_filtered = rumah.copy()
 
 lat = kota_map[selected_city]['lat']
 lon = kota_map[selected_city]['lon']
@@ -152,9 +161,13 @@ for kota, group in polygon.groupby("Kota"):
         icon=folium.Icon(color="blue", icon="info-sign")
     ).add_to(m)
 
+st.divider()
 
-st.subheader(f"Peta Persebaran Kosan – {selected_city}")
-st_folium(m, width=700, height=500)
+col1, col2 = st.columns([2, 1])
+
+with col1:
+    st.subheader(f"Peta Persebaran Kosan – {selected_city}")
+    st_folium(m, use_container_width=True, height=650)
 
 
 df_tabel_fasilitas = (
@@ -166,95 +179,142 @@ df_tabel_fasilitas = (
     .reset_index()
 )
 
-st.subheader(f"Rata-rata fasilitas yang disediakan di area {selected_city}")
+with col2:
+    st.subheader(f"Rata-rata fasilitas yang disediakan di area {selected_city}")
+    st.dataframe(
+        df_tabel_fasilitas,
+        width="stretch",
+        use_container_width=True,
+        hide_index=True
+    )
+
+st.divider()
+
+col3, col4 = st.columns(2)
+
+with col3:
+    st.subheader('Grafik perbandingan UMR dengan rata-rata harga kosan')
+    st.write('Berasal dari website pinhome yang membahas mengenai "Panduan Biaya Sewa Tempat Tinggal Idel Sesuai Pendapatan" Biaya sewa yang ideal adalah 30-40% dari gaji yang kita miliki agar tetap aman secara finansial.')
+    grafik_filtered = grafik_filtered.copy()
+
+    grafik_filtered["Batas 30% UMR"] = grafik_filtered["UMK"] * 0.3
+    grafik_filtered["Batas 40% UMR"] = grafik_filtered["UMK"] * 0.4
+    #grafik
+    plt.figure(figsize=(10, 5))
+
+    plt.plot(
+        grafik_filtered["Kota"],
+        grafik_filtered["UMK"],
+        marker="o",
+        label="UMR",
+        color='green'
+    )
+
+    plt.plot(
+        grafik_filtered["Kota"],
+        grafik_filtered["ratarata"],
+        marker="o",
+        label="Rata-rata Harga Kos",
+        color='orange'
+    )
+
+    plt.plot(
+        grafik_filtered["Kota"],
+        grafik_filtered["Batas 30% UMR"],
+        marker="o",
+        linestyle="--",
+        color="blue",
+        label="Minimum sewa 30% UMR"
+    )
+
+    plt.plot(
+        grafik_filtered["Kota"],
+        grafik_filtered["Batas 40% UMR"],
+        marker="o",
+        linestyle="--",
+        color="red",
+        label="Maksimum sewa 40% UMR"
+    )
+
+    plt.ylabel("Rupiah (Rp)")
+    plt.xlabel("Kota")
+    plt.legend()
+    plt.grid(True)
+    plt.xticks(rotation=45)
+
+    st.pyplot(plt)
+
+with col4:
+    st.subheader('Grafik pengeluaran biaya makan perbulan')
+    st.write('Grafik ini bertujuan untuk memberikan gambaran berapa biaya dari gaji UMR yang terpotong untuk membayar biaya makan per-bulan, data pengeluaran per-bulan untuk makan per-daerahnya kami dapatkan dari BPS (Badan Pusat Statistik)')
+    plt.figure(figsize=(10, 5))
+
+    plt.plot(
+        grafik_filtered["Kota"],
+        grafik_filtered["UMK"],
+        marker="o",
+        label="UMR",
+        color='green'
+    )
+
+    plt.plot(
+        grafikMakan_filtered["Kota"],
+        grafikMakan_filtered["Biaya Makan"],
+        marker="o",
+        label="Biaya Makan Perbulan",
+        color='blue'
+    )
+
+    plt.legend()
+    plt.ylabel("Rupiah (Rp)")
+    plt.xlabel("Kota")
+
+    plt.ylim(bottom=500) 
+
+    plt.grid(True)
+    plt.xticks(rotation=45)
+
+    st.pyplot(plt, use_container_width=True)
+
+st.divider()
+
+st.subheader('Lama pelunasan Rumah')
+
+df_filtered = df[df["Kota"].isin(kota_aktif)]
+grafik_filtered = grafik[grafik["Kota"].isin(kota_aktif)]
+grafikMakan_filtered = grafikMakan[grafikMakan["Kota"].isin(kota_aktif)]
+
+df_keuangan = (
+    grafik_filtered[["Kota", "UMK", "ratarata"]]
+    .merge(
+        grafikMakan_filtered[["Kota", "Biaya Makan"]],
+        on="Kota",
+        how="inner"
+    )
+)
+
+df_keuangan["Sisa Gaji / Bulan"] = (
+    df_keuangan["UMK"] - (df_keuangan["ratarata"] + df_keuangan["Biaya Makan"])
+)
+
+df_rumah_hasil = df_keuangan.merge(
+    rumah,
+    how="cross"
+)
+
+df_rumah_hasil["Lama Pelunasan (Tahun)"] = (
+    df_rumah_hasil["Harga"] / df_rumah_hasil["Sisa Gaji / Bulan"] / 12
+).round(1)
+
+df_rumah_hasil = df_rumah_hasil[[
+    "Kota",
+    "Tipe",
+    "Harga",
+    "Lama Pelunasan (Tahun)"
+]]
 
 st.dataframe(
-    df_tabel_fasilitas,
-    width="stretch",
-    hide_index=True,
+    df_rumah_hasil,
+    use_container_width=True,
+    hide_index=True
 )
-
-st.subheader('Grafik perbandingan UMR dengan rata-rata harga kosan')
-st.write('Berasal dari website pinhome yang membahas mengenai "Panduan Biaya Sewa Tempat Tinggal Idel Sesuai Pendapatkan" Biaya sewa yang ideal adalah 30-40% dari gaji yang kita miliki agar tetap aman secara finansial.')
-grafik_filtered = grafik_filtered.copy()
-
-grafik_filtered["Batas 30% UMR"] = grafik_filtered["UMK"] * 0.3
-grafik_filtered["Batas 40% UMR"] = grafik_filtered["UMK"] * 0.4
-#grafik
-plt.figure(figsize=(10, 5))
-
-plt.plot(
-    grafik_filtered["Kota"],
-    grafik_filtered["UMK"],
-    marker="o",
-    label="UMR",
-    color='green'
-)
-
-plt.plot(
-    grafik_filtered["Kota"],
-    grafik_filtered["ratarata"],
-    marker="o",
-    label="Rata-rata Harga Kos",
-    color='orange'
-)
-
-plt.plot(
-    grafik_filtered["Kota"],
-    grafik_filtered["Batas 30% UMR"],
-    marker="o",
-    linestyle="--",
-    color="blue",
-    label="Minimum sewa 30% UMR"
-)
-
-plt.plot(
-    grafik_filtered["Kota"],
-    grafik_filtered["Batas 40% UMR"],
-    marker="o",
-    linestyle="--",
-    color="red",
-    label="Maksimum sewa 40% UMR"
-)
-
-plt.ylabel("Rupiah (Rp)")
-plt.xlabel("Kota")
-plt.legend()
-plt.grid(True)
-plt.xticks(rotation=45)
-
-st.pyplot(plt)
-
-st.subheader('Grafik pengeluaran biaya makan perbulan')
-st.write('Data pengeluaran per-bulan untuk makan per-daerahnya kami dapatkan dari BPS (Badan Pusat Statistik)')
-plt.figure(figsize=(10, 5))
-
-plt.plot(
-    grafik_filtered["Kota"],
-    grafik_filtered["UMK"],
-    marker="o",
-    label="UMR",
-    color='green'
-)
-
-plt.plot(
-    grafikMakan_filtered["Kota"],
-    grafikMakan_filtered["Biaya Makan"],
-    marker="o",
-    label="Biaya Makan Perbulan",
-    color='blue'
-)
-
-plt.legend()
-plt.ylabel("Rupiah (Rp)")
-plt.xlabel("Kota")
-
-plt.ylim(bottom=500) 
-
-plt.grid(True)
-plt.xticks(rotation=45)
-
-st.pyplot(plt, use_container_width=True)
-
-
-
