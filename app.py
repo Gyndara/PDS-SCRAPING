@@ -200,7 +200,7 @@ with col3:
     grafik_filtered["Batas 30% UMR"] = grafik_filtered["UMK"] * 0.3
     grafik_filtered["Batas 40% UMR"] = grafik_filtered["UMK"] * 0.4
     #grafik
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(10, 4))
 
     plt.plot(
         grafik_filtered["Kota"],
@@ -247,34 +247,37 @@ with col3:
 with col4:
     st.subheader('Grafik pengeluaran biaya makan perbulan')
     st.write('Grafik ini bertujuan untuk memberikan gambaran berapa biaya dari gaji UMR yang terpotong untuk membayar biaya makan per-bulan, data pengeluaran per-bulan untuk makan per-daerahnya kami dapatkan dari BPS (Badan Pusat Statistik)')
-    plt.figure(figsize=(10, 5))
+    fig2 = plt.figure(figsize=(10, 4))
 
-    plt.plot(
-        grafik_filtered["Kota"],
+    x = range(len(grafik_filtered["Kota"]))
+    width = 0.35
+
+    plt.bar(
+        x,
         grafik_filtered["UMK"],
-        marker="o",
-        label="UMR",
-        color='green'
+        width=width,
+        label="UMR"
     )
 
-    plt.plot(
-        grafikMakan_filtered["Kota"],
+    plt.bar(
+        [i + width for i in x],
         grafikMakan_filtered["Biaya Makan"],
-        marker="o",
-        label="Biaya Makan Perbulan",
-        color='blue'
+        width=width,
+        label="Biaya Makan"
     )
 
-    plt.legend()
+    plt.xticks(
+        [i + width / 2 for i in x],
+        grafik_filtered["Kota"],
+        rotation=45
+    )
+
     plt.ylabel("Rupiah (Rp)")
     plt.xlabel("Kota")
+    plt.legend()
+    plt.grid(axis="y")
 
-    plt.ylim(bottom=500) 
-
-    plt.grid(True)
-    plt.xticks(rotation=45)
-
-    st.pyplot(plt, use_container_width=True)
+    st.pyplot(fig2)
 
 st.divider()
 
