@@ -193,7 +193,7 @@ st.divider()
 col3, col4 = st.columns(2)
 
 with col3:
-    st.subheader('Grafik perbandingan UMR dengan rata-rata harga kosan')
+    st.subheader('Grafik UMR dengan rata-rata harga kosan')
     st.write('Berasal dari website pinhome yang membahas mengenai "Panduan Biaya Sewa Tempat Tinggal Idel Sesuai Pendapatan" Biaya sewa yang ideal adalah 30-40% dari gaji yang kita miliki agar tetap aman secara finansial.')
     grafik_filtered = grafik_filtered.copy()
 
