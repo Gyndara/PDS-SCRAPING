@@ -287,7 +287,7 @@ st.divider()
 
 st.subheader('Lama pelunasan Rumah')
 st.write('Perhitungan ini didapatkan dengan cara menghitung sisa gaji setelah membayar biaya sewa rumah dan juga biaya makan perbulan, lalu membagi harga rumah dengan sisa gaji')
-# Gabungkan UMR + harga kos + biaya makan
+
 df_keuangan = (
     grafik_filtered[["Kota", "UMK", "ratarata"]]
     .merge(
@@ -297,13 +297,11 @@ df_keuangan = (
     )
 )
 
-# Hitung sisa gaji per bulan
 df_keuangan["Sisa UMR / Bulan"] = (
     df_keuangan["UMK"]
     - (df_keuangan["ratarata"] + df_keuangan["Biaya Makan"])
 )
 
-# Gabungkan dengan harga rumah
 df_lama_pelunasan = (
     df_keuangan[["Kota", "Sisa UMR / Bulan"]]
     .merge(
@@ -313,7 +311,6 @@ df_lama_pelunasan = (
     )
 )
 
-# Hitung lama pelunasan (tahun)
 df_lama_pelunasan["Lama Pelunasan (Tahun)"] = (
     df_lama_pelunasan["Harga"]
     / df_lama_pelunasan["Sisa UMR / Bulan"]
