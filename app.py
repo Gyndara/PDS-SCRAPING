@@ -331,7 +331,7 @@ st.dataframe(
 )
 
 st.subheader('UMR ideal ditiap daerah')
-st.write('perhitungan ideal ini berdasarkan biaya yang dikeluarkan untuk sewa tempat tinggal, biaya makan perbulan')
+st.write('UMR ideal dihitung berdasarkan harga rumah Kelas 1, biaya sewa kos, dan biaya makan per bulan dengan target pelunasan rumah selama 7 tahun')
 
 rumah_kelas1 = rumah[rumah["Kelas"] == "Kelas 1"]
 
